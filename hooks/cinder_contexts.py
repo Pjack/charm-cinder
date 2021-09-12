@@ -150,7 +150,10 @@ class StorageBackendContext(OSContextGenerator):
         return {
             'active_backends': backends,
             'backends': ",".join(backends),
-            'default_volume_type': config('default-volume-type')}
+            'default_volume_type': config('default-volume-type'),
+            'image_volume_cache_enabled': config('image-volume-cache-enabled'),
+            'image_volume_cache_max_size_gb': config('image-volume-cache-max-size-gb'),
+            'image_volume_cache_max_count': config('image-volume-cache-max-count')}
 
 
 class LoggingConfigContext(OSContextGenerator):

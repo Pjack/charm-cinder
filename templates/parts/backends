@@ -13,8 +13,8 @@ default_volume_type = {{ default_volume_type }}
 
 {% if image-volume-cache-enabled %}
 image_volume_cache_enabled = true
-image_volume_cache_max_size_gb = {{ image-volume-cache-max-size-gb }}
-image_volume_cache_max_count = {{ image-volume-cache-max-count }}
+image_volume_cache_max_size_gb = {{ image_volume_cache_max_size_gb }}
+image_volume_cache_max_count = {{ image_volume_cache_max_count }}
 {%- endif %}
 
 {% for section in sections -%}
