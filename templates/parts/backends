@@ -11,7 +11,7 @@ enabled_backends = {{ backends }}
 default_volume_type = {{ default_volume_type }}
 {%- endif %}
 
-{% if image-volume-cache-enabled %}
+{% if image_volume_cache_enabled %}
 image_volume_cache_enabled = true
 image_volume_cache_max_size_gb = {{ image_volume_cache_max_size_gb }}
 image_volume_cache_max_count = {{ image_volume_cache_max_count }}
