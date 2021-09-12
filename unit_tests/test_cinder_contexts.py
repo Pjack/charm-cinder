@@ -113,31 +113,64 @@ class TestCinderContext(CharmTestCase):
         self.assertEqual(contexts.ApacheSSLContext()(), {})
 
     def test_storage_backend_no_backends(self):
-        self.config.return_value = None
+
+        conf_dict = {
+            'default-volume-type': None,
+            'image-volume-cache-enabled': False,
+            'image-volume-cache-max-size-gb': 0,
+            'image-volume-cache-max-count': 0
+        }
+
+        self.config.side_effect = lambda x: conf_dict[x]
         self.relation_ids.return_value = []
         self.os_release.return_value = 'havana'
         self.assertEqual(
             contexts.StorageBackendContext()(),
             {'active_backends': [],
              'backends': '',
-             'default_volume_type': None})
+             'default_volume_type': None,
+             'image_volume_cache_enabled': False,
+             'image_volume_cache_max_size_gb': 0,
+             'image_volume_cache_max_count': 0})
 
     def test_storage_backend_single_backend(self):
         rel_dict = {
             'storage-backend': ['cinder-ceph:0'],
             'ceph': []}
-        self.config.return_value = None
+
         self.relation_ids.side_effect = lambda x: rel_dict[x]
         self.related_units.return_value = ['cinder-ceph/0']
         self.relation_get.return_value = 'cinder-ceph'
         self.os_release.return_value = 'havana'
-        self.assertEqual(contexts.StorageBackendContext()(),
-                         {'backends': 'cinder-ceph',
-                          'active_backends': ['cinder-ceph'],
-                          'default_volume_type': None})
+
+        image_volume_cache_param_list = [(False, 0, 0), (True, 10, 100)]
+        for enabled, max_size, max_count in image_volume_cache_param_list:
+            with self.subTest():
+                conf_dict = {
+                    'default-volume-type': None,
+                    'image-volume-cache-enabled': enabled,
+                    'image-volume-cache-max-size-gb': max_size,
+                    'image-volume-cache-max-count': max_count
+                }
+                self.config.side_effect = lambda x: conf_dict[x]
+                self.assertEqual(contexts.StorageBackendContext()(),
+                                 {'backends': 'cinder-ceph',
+                                  'active_backends': ['cinder-ceph'],
+                                  'default_volume_type': None,
+                                  'image_volume_cache_enabled': enabled,
+                                  'image_volume_cache_max_size_gb': max_size,
+                                  'image_volume_cache_max_count': max_count})
 
     def test_storage_backend_multi_backend(self):
-        self.config.return_value = None
+
+        conf_dict = {
+            'default-volume-type': None,
+            'image-volume-cache-enabled': True,
+            'image-volume-cache-max-size-gb': 10,
+            'image-volume-cache-max-count': 100
+        }
+
+        self.config.side_effect = lambda x: conf_dict[x]
         self.os_release.return_value = 'havana'
         rel_dict = {
             'storage-backend': ['cinder-ceph:0', 'cinder-vmware:0'],
@@ -150,10 +183,20 @@ class TestCinderContext(CharmTestCase):
             contexts.StorageBackendContext()(),
             {'backends': 'cinder-ceph,cinder-vmware',
              'active_backends': ['cinder-ceph', 'cinder-vmware'],
-             'default_volume_type': None})
+             'default_volume_type': None,
+             'image_volume_cache_enabled': True,
+             'image_volume_cache_max_size_gb': 10,
+             'image_volume_cache_max_count': 100})
 
     def test_storage_backend_multi_backend_with_default_type(self):
-        self.config.return_value = 'my-preferred-volume-type'
+
+        conf_dict = {
+            'default-volume-type': 'my-preferred-volume-type',
+            'image-volume-cache-enabled': True,
+            'image-volume-cache-max-size-gb': 10,
+            'image-volume-cache-max-count': 100
+        }
+        self.config.side_effect = lambda x: conf_dict[x]
         self.os_release.return_value = 'havana'
         rel_dict = {
             'storage-backend': ['cinder-ceph:0', 'cinder-vmware:0'],
@@ -166,7 +209,10 @@ class TestCinderContext(CharmTestCase):
             contexts.StorageBackendContext()(),
             {'backends': 'cinder-ceph,cinder-vmware',
              'active_backends': ['cinder-ceph', 'cinder-vmware'],
-             'default_volume_type': 'my-preferred-volume-type'})
+             'default_volume_type': 'my-preferred-volume-type',
+             'image_volume_cache_enabled': True,
+             'image_volume_cache_max_size_gb': 10,
+             'image_volume_cache_max_count': 100})
 
     mod_ch_context = 'charmhelpers.contrib.openstack.context'
 
