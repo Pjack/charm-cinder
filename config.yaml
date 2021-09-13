@@ -384,15 +384,15 @@ options:
       be used by cinder internal and prevent a normal user from seeing them.
       Cinder can use for owning these internal volumes/snapshots/etc. It is a
       manadatory configuration to turn on image volume cache. Note: This
-      configuration won't create the porject automatically.
+      configuration won't create the internal project automatically.
   internal-tenant-user-id:
     type: string
     default:
     description: |
       Provide a tenent user id for cinder internal use. It does not require
       any special privileges. It is a manadatory configuration to turn on
-      image volume cache. Note: This configuration won't create the porject
-      automatically.
+      image volume cache. Note: This configuration won't create the
+      internal user automatically.
   image-volume-cache-enabled:
     type: boolean
     default: False

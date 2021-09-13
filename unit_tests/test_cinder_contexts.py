@@ -141,20 +141,20 @@ class TestCinderContext(CharmTestCase):
         self.os_release.return_value = 'havana'
 
         image_volume_cache_param_list = [(False, 0, 0), (True, 10, 100)]
-        for enabled, max_size, max_count in image_volume_cache_param_list:
+        for enabled, size, count in image_volume_cache_param_list:
             with self.subTest():
                 self.test_config.set('default-volume-type', None)
                 self.test_config.set('image-volume-cache-enabled', enabled)
-                self.test_config.set('image-volume-cache-max-size-gb', max_size)
-                self.test_config.set('image-volume-cache-max-count', max_count)
+                self.test_config.set('image-volume-cache-max-size-gb', size)
+                self.test_config.set('image-volume-cache-max-count', count)
                 self.config.side_effect = self.test_config.get
                 self.assertEqual(contexts.StorageBackendContext()(),
                                  {'backends': 'cinder-ceph',
                                   'active_backends': ['cinder-ceph'],
                                   'default_volume_type': None,
                                   'image_volume_cache_enabled': enabled,
-                                  'image_volume_cache_max_size_gb': max_size,
-                                  'image_volume_cache_max_count': max_count})
+                                  'image_volume_cache_max_size_gb': size,
+                                  'image_volume_cache_max_count': count})
 
     def test_storage_backend_multi_backend(self):
         self.test_config.set('default-volume-type', None)
