@@ -114,14 +114,11 @@ class TestCinderContext(CharmTestCase):
 
     def test_storage_backend_no_backends(self):
 
-        conf_dict = {
-            'default-volume-type': None,
-            'image-volume-cache-enabled': False,
-            'image-volume-cache-max-size-gb': 0,
-            'image-volume-cache-max-count': 0
-        }
-
-        self.config.side_effect = lambda x: conf_dict[x]
+        self.test_config.set('default-volume-type', None)
+        self.test_config.set('image-volume-cache-enabled', False)
+        self.test_config.set('image-volume-cache-max-size-gb', 0)
+        self.test_config.set('image-volume-cache-max-count', 0)
+        self.config.side_effect = self.test_config.get
         self.relation_ids.return_value = []
         self.os_release.return_value = 'havana'
         self.assertEqual(
@@ -146,13 +143,11 @@ class TestCinderContext(CharmTestCase):
         image_volume_cache_param_list = [(False, 0, 0), (True, 10, 100)]
         for enabled, max_size, max_count in image_volume_cache_param_list:
             with self.subTest():
-                conf_dict = {
-                    'default-volume-type': None,
-                    'image-volume-cache-enabled': enabled,
-                    'image-volume-cache-max-size-gb': max_size,
-                    'image-volume-cache-max-count': max_count
-                }
-                self.config.side_effect = lambda x: conf_dict[x]
+                self.test_config.set('default-volume-type', None)
+                self.test_config.set('image-volume-cache-enabled', enabled)
+                self.test_config.set('image-volume-cache-max-size-gb', max_size)
+                self.test_config.set('image-volume-cache-max-count', max_count)
+                self.config.side_effect = self.test_config.get
                 self.assertEqual(contexts.StorageBackendContext()(),
                                  {'backends': 'cinder-ceph',
                                   'active_backends': ['cinder-ceph'],
@@ -162,15 +157,11 @@ class TestCinderContext(CharmTestCase):
                                   'image_volume_cache_max_count': max_count})
 
     def test_storage_backend_multi_backend(self):
-
-        conf_dict = {
-            'default-volume-type': None,
-            'image-volume-cache-enabled': True,
-            'image-volume-cache-max-size-gb': 10,
-            'image-volume-cache-max-count': 100
-        }
-
-        self.config.side_effect = lambda x: conf_dict[x]
+        self.test_config.set('default-volume-type', None)
+        self.test_config.set('image-volume-cache-enabled', True)
+        self.test_config.set('image-volume-cache-max-size-gb', 10)
+        self.test_config.set('image-volume-cache-max-count', 100)
+        self.config.side_effect = self.test_config.get
         self.os_release.return_value = 'havana'
         rel_dict = {
             'storage-backend': ['cinder-ceph:0', 'cinder-vmware:0'],
@@ -189,14 +180,11 @@ class TestCinderContext(CharmTestCase):
              'image_volume_cache_max_count': 100})
 
     def test_storage_backend_multi_backend_with_default_type(self):
-
-        conf_dict = {
-            'default-volume-type': 'my-preferred-volume-type',
-            'image-volume-cache-enabled': True,
-            'image-volume-cache-max-size-gb': 10,
-            'image-volume-cache-max-count': 100
-        }
-        self.config.side_effect = lambda x: conf_dict[x]
+        self.test_config.set('default-volume-type', 'my-preferred-volume-type')
+        self.test_config.set('image-volume-cache-enabled', True)
+        self.test_config.set('image-volume-cache-max-size-gb', 10)
+        self.test_config.set('image-volume-cache-max-count', 100)
+        self.config.side_effect = self.test_config.get
         self.os_release.return_value = 'havana'
         rel_dict = {
             'storage-backend': ['cinder-ceph:0', 'cinder-vmware:0'],
@@ -511,3 +499,13 @@ class TestCinderContext(CharmTestCase):
             contexts.VolumeUsageAuditContext.DEFAULT_CRONTAB_PATH, "wt+")
         self.assertEqual(self.config.return_value,
                          ctxt["volume_usage_audit_period"])
+
+    def test_internal_tenant_context(self):
+        self.test_config.set('internal-tenant-project-id', 'my-project-id')
+        self.test_config.set('internal-tenant-user-id', 'my-user-id')
+        self.config.side_effect = self.test_config.get
+        ctxt = contexts.InternalTenantContext()()
+        expect = {
+            'internal_tenant_project_id': 'my-project-id',
+            'internal_tenant_user_id': 'my-user-id'}
+        self.assertEqual(ctxt, expect)

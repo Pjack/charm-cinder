@@ -376,6 +376,23 @@ options:
       must be created after a deployment via API to take effect, e.g.,
       `openstack volume type create VOLUME_TYPE --property
       volume_backend_name=BACKEND_NAME`
+  internal-tenant-project-id:
+    type: string
+    default:
+    description: |
+      Provide a tenant project id for cinder interal use. This project will
+      be used by cinder internal and prevent a normal user from seeing them.
+      Cinder can use for owning these internal volumes/snapshots/etc. It is a
+      manadatory configuration to turn on image volume cache. Note: This
+      configuration won't create the porject automatically.
+  internal-tenant-user-id:
+    type: string
+    default:
+    description: |
+      Provide a tenent user id for cinder internal use. It does not require
+      any special privileges. It is a manadatory configuration to turn on
+      image volume cache. Note: This configuration won't create the porject
+      automatically.
   image-volume-cache-enabled:
     type: boolean
     default: False
