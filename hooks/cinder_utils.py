@@ -869,12 +869,17 @@ def get_optional_interfaces():
     return optional_interfaces
 
 
-def check_optional_relations(configs):
-    """Check that if we have a relation_id for high availability that we can
-    get the hacluster config.  If we can't then we are blocked.  This function
-    is called from assess_status/set_os_workload_status as the charm_func and
-    needs to return either "unknown", "" if there is no problem or the status,
-    message if there is a problem.
+def check_optional_config_and_relations(configs):
+    """ Validate optional configuration and relations when present
+
+    This function is called from assess_status/set_os_workload_status as the
+    charm_func and needs to return either "unknown", "" if there is no problem
+    or the status, message if there is a problem.
+
+    1. Check that if we have a relation_id for high availability that we can
+    get the hacluster config.  If we can't then we are blocked.
+
+    2. Check that if the internal tenent exist before setup image cache.
 
     :param configs: an OSConfigRender() instance.
     :return 2-tuple: (string, string) = (status, message)
@@ -886,6 +891,14 @@ def check_optional_relations(configs):
             return ('blocked',
                     'hacluster missing configuration: '
                     'vip, vip_iface, vip_cidr')
+
+    if config('image-volume-cache-enabled'):
+        if not config('internal-tenant-project-id') or not config(
+                'internal-tenant-user-id'):
+            return ('blocked',
+                    'cinder missing configuration to turn on image cache '
+                    ': internal-tenant-project-id, internal-tenant-user-id')
+
     # return 'unknown' as the lowest priority to not clobber an existing
     # status.
     return 'unknown', ''
@@ -928,7 +941,7 @@ def assess_status_func(configs):
     _services, _ = get_managed_services_and_ports(services(), [])
     return make_assess_status_func(
         configs, interfaces,
-        charm_func=check_optional_relations,
+        charm_func=check_optional_config_and_relations,
         services=_services, ports=None)
 
 

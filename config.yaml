@@ -380,19 +380,20 @@ options:
     type: string
     default:
     description: |
-      Provide a tenant project id for cinder interal use. This project will
-      be used by cinder internal and prevent a normal user from seeing them.
-      Cinder can use for owning these internal volumes/snapshots/etc. It is a
-      manadatory configuration to turn on image volume cache. Note: This
-      configuration won't create the internal project automatically.
+      This is the project ID for cinder's internal use. It prevents a normal
+      user from seeing internal volumes/snapshots/etc. It must be configured
+      for the 'image-volume-cache-enabled' feature.  Note: The OpenStack
+      project for the ID must be created separately as setting this does not
+      create it.
   internal-tenant-user-id:
     type: string
     default:
     description: |
-      Provide a tenent user id for cinder internal use. It does not require
-      any special privileges. It is a manadatory configuration to turn on
-      image volume cache. Note: This configuration won't create the
-      internal user automatically.
+      This is the user ID for cinder's internal use. It prevents a normal
+      user from seeing internal volumes/snapshots/etc. It must be configured
+      for the 'image-volume-cache-enabled' feature.  Note: The OpenStack
+      user for the ID must be created separately as setting this does
+      not create it.
   image-volume-cache-enabled:
     type: boolean
     default: False
