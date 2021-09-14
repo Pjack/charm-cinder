@@ -499,13 +499,3 @@ class TestCinderContext(CharmTestCase):
             contexts.VolumeUsageAuditContext.DEFAULT_CRONTAB_PATH, "wt+")
         self.assertEqual(self.config.return_value,
                          ctxt["volume_usage_audit_period"])
-
-    def test_internal_tenant_context(self):
-        self.test_config.set('internal-tenant-project-id', 'my-project-id')
-        self.test_config.set('internal-tenant-user-id', 'my-user-id')
-        self.config.side_effect = self.test_config.get
-        ctxt = contexts.InternalTenantContext()()
-        expect = {
-            'internal_tenant_project_id': 'my-project-id',
-            'internal_tenant_user_id': 'my-user-id'}
-        self.assertEqual(ctxt, expect)

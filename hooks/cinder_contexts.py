@@ -268,16 +268,3 @@ class VolumeUsageAuditContext(OSContextGenerator):
         return {
             'volume_usage_audit_period': config("volume-usage-audit-period")
         }
-
-
-class InternalTenantContext(OSContextGenerator):
-    """This context provides the configuration directive
-    internal-tenant-project-id and internal-tenant-user-id
-    """
-
-    def __call__(self):
-        return {
-            'internal_tenant_project_id': config(
-                'internal-tenant-project-id'),
-            'internal_tenant_user_id': config(
-                'internal-tenant-user-id')}
