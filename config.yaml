@@ -379,13 +379,19 @@ options:
   image-volume-cache-enabled:
     type: boolean
     default: False
-    description: Enable the image volume cache
+    description: |
+      Enable the image volume cache. These configuration is supported on
+      OpenStack Ocata and newer.
   image-volume-cache-max-size-gb:
     type: int
     default: 0
-    description: Max size of the image volume cache in GB. 0 => unlimited
+    description: |
+      Max size of the image volume cache in GB. 0 means unlimited. These
+      configuration is supported on OpenStack Ocata and newer.
   image-volume-cache-max-count:
     type: int
     default: 0
-    description: Max number of entries allowed in the image volume cache. 0 => unlimited.
+    description: |
+      Max number of entries allowed in the image volume cache. 0 means
+      unlimited. These configuration is supported on OpenStack Ocata and newer.
 

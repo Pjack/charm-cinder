@@ -140,27 +140,24 @@ class TestCinderContext(CharmTestCase):
         self.relation_get.return_value = 'cinder-ceph'
         self.os_release.return_value = 'havana'
 
-        image_volume_cache_param_list = [(False, 0, 0), (True, 10, 100)]
-        for enabled, size, count in image_volume_cache_param_list:
-            with self.subTest():
-                self.test_config.set('default-volume-type', None)
-                self.test_config.set('image-volume-cache-enabled', enabled)
-                self.test_config.set('image-volume-cache-max-size-gb', size)
-                self.test_config.set('image-volume-cache-max-count', count)
-                self.config.side_effect = self.test_config.get
-                self.assertEqual(contexts.StorageBackendContext()(),
-                                 {'backends': 'cinder-ceph',
-                                  'active_backends': ['cinder-ceph'],
-                                  'default_volume_type': None,
-                                  'image_volume_cache_enabled': enabled,
-                                  'image_volume_cache_max_size_gb': size,
-                                  'image_volume_cache_max_count': count})
+        self.test_config.set('default-volume-type', None)
+        self.test_config.set('image-volume-cache-enabled', False)
+        self.test_config.set('image-volume-cache-max-size-gb', 0)
+        self.test_config.set('image-volume-cache-max-count', 0)
+        self.config.side_effect = self.test_config.get
+        self.assertEqual(contexts.StorageBackendContext()(),
+                         {'backends': 'cinder-ceph',
+                          'active_backends': ['cinder-ceph'],
+                          'default_volume_type': None,
+                          'image_volume_cache_enabled': False,
+                          'image_volume_cache_max_size_gb': 0,
+                          'image_volume_cache_max_count': 0})
 
     def test_storage_backend_multi_backend(self):
         self.test_config.set('default-volume-type', None)
-        self.test_config.set('image-volume-cache-enabled', True)
-        self.test_config.set('image-volume-cache-max-size-gb', 10)
-        self.test_config.set('image-volume-cache-max-count', 100)
+        self.test_config.set('image-volume-cache-enabled', False)
+        self.test_config.set('image-volume-cache-max-size-gb', 0)
+        self.test_config.set('image-volume-cache-max-count', 0)
         self.config.side_effect = self.test_config.get
         self.os_release.return_value = 'havana'
         rel_dict = {
@@ -175,9 +172,9 @@ class TestCinderContext(CharmTestCase):
             {'backends': 'cinder-ceph,cinder-vmware',
              'active_backends': ['cinder-ceph', 'cinder-vmware'],
              'default_volume_type': None,
-             'image_volume_cache_enabled': True,
-             'image_volume_cache_max_size_gb': 10,
-             'image_volume_cache_max_count': 100})
+             'image_volume_cache_enabled': False,
+             'image_volume_cache_max_size_gb': 0,
+             'image_volume_cache_max_count': 0})
 
     def test_storage_backend_multi_backend_with_default_type(self):
         self.test_config.set('default-volume-type', 'my-preferred-volume-type')
@@ -201,6 +198,32 @@ class TestCinderContext(CharmTestCase):
              'image_volume_cache_enabled': True,
              'image_volume_cache_max_size_gb': 10,
              'image_volume_cache_max_count': 100})
+
+    def test_image_volume_cache(self):
+        rel_dict = {
+            'storage-backend': ['cinder-ceph:0'],
+            'ceph': []}
+
+        self.relation_ids.side_effect = lambda x: rel_dict[x]
+        self.related_units.return_value = ['cinder-ceph/0']
+        self.relation_get.return_value = 'cinder-ceph'
+        self.os_release.return_value = 'havana'
+
+        image_volume_cache_param_list = [(False, 0, 0), (True, 10, 100)]
+        for enabled, size, count in image_volume_cache_param_list:
+            with self.subTest():
+                self.test_config.set('default-volume-type', None)
+                self.test_config.set('image-volume-cache-enabled', enabled)
+                self.test_config.set('image-volume-cache-max-size-gb', size)
+                self.test_config.set('image-volume-cache-max-count', count)
+                self.config.side_effect = self.test_config.get
+                self.assertEqual(contexts.StorageBackendContext()(),
+                                 {'backends': 'cinder-ceph',
+                                  'active_backends': ['cinder-ceph'],
+                                  'default_volume_type': None,
+                                  'image_volume_cache_enabled': enabled,
+                                  'image_volume_cache_max_size_gb': size,
+                                  'image_volume_cache_max_count': count})
 
     mod_ch_context = 'charmhelpers.contrib.openstack.context'
 
